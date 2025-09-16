@@ -32,6 +32,7 @@ while True:
     # 3) 네 방향 모두 불가 → 뒤로 후진 or 종료
     if not moved:
         back = (d+2)%4
+        #뒤로 갔을때의 좌표 
         by = y + dy[back]
         bx = x + dx[back]
         if not (0 <= by < N and 0 <= bx < M):  # 범위 밖이면 종료
