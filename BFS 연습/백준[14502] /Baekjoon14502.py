@@ -1,49 +1,49 @@
 import sys
-import copy
+from itertools import combinations
+from collections import deque
+
 input = sys.stdin.readline
 
-N, M = map(int,input().split())
-graph = [list(map(int,input().split())) for _ in range(N)] # 그래프 생성
-graph_copy = copy.deepcopy(graph) # 그래프 복사
-dx, dy = [-1,1,0,0], [0,0,-1,1] # 상하좌우 이동
+N, M = map(int, input().split())
+graph = [list(map(int, input().split())) for _ in range(N)]
 
-safe_region = 0 # 최대 안전 영역
+empties = []   # 0인 칸들
+viruses = []   # 2인 칸들
+for i in range(N):
+    for j in range(M):
+        if graph[i][j] == 0:
+            empties.append((i, j))
+        elif graph[i][j] == 2:
+            viruses.append((i, j))
 
-# dfs
-def dfs(x,y,sel_wall):
-    sel_wall[x][y] = 2 # 바이러스로 변경
+dx = [-1, 1, 0, 0]
+dy = [0, 0, -1, 1]
 
-    # 상하좌우 탐색
-    for i in range(4):
-        nx, ny = x + dx[i], y + dy[i]
-        if 0 <= nx < N and 0 <= ny < M:
-            if sel_wall[nx][ny] == 0: # 바이러스가 퍼질 수 있는 곳
-                dfs(nx,ny,sel_wall) # 바이러스 퍼뜨리기
+def spread_and_count(grid):
+    """grid는 벽이 이미 세워진 상태의 복사본.
+    바이러스를 BFS로 퍼뜨리고 남은 0(안전영역) 개수를 반환."""
+    q = deque(viruses)
+    while q:
+        x, y = q.popleft()
+        for k in range(4):
+            nx, ny = x + dx[k], y + dy[k]
+            if 0 <= nx < N and 0 <= ny < M and grid[nx][ny] == 0:
+                grid[nx][ny] = 2
+                q.append((nx, ny))
+    # 안전영역 개수 반환
+    return sum(row.count(0) for row in grid)
 
+max_safe = 0
+# 빈칸 3개 조합으로 벽 세우기
+for a, b, c in combinations(empties, 3):
+    # 원본 건드리지 않도록 복사
+    grid_copy = [row[:] for row in graph]
+    grid_copy[a[0]][a[1]] = 1
+    grid_copy[b[0]][b[1]] = 1
+    grid_copy[c[0]][c[1]] = 1
 
-# 벽 선택하기
-def select_wall(start, count):
-    global safe_region
+    safe = spread_and_count(grid_copy)
+    if safe > max_safe:
+        max_safe = safe
 
-    if count == 3: # 벽이 3개 선택된 경우 실행
-        sel_wall = copy.deepcopy(graph_copy) # 벽이 선택된 그래프 복사
-        # dfs로 바이러스 퍼뜨리기
-        for i in range(N):
-            for j in range(M):
-                if sel_wall[i][j] == 2: # 바이러스 발견시에 dfs
-                    dfs(i,j,sel_wall)
-        safe_count = sum(_.count(0) for _ in sel_wall) # 안전 영역 개수 계산
-        safe_region = max(safe_region,safe_count) # 최대 안전 영역 개수 갱신
-        return
-
-    else: # 벽이 3개 선택되지 않은 경우
-        for i in range(start, N*M): # 브루트-포스로 벽 선택
-            r = i // M # M으로 나눈 몫는 행
-            c = i % M # M으로 나눈 나머지는 열
-            if graph_copy[r][c] == 0: # 해당 구역이 0인 경우에
-                graph_copy[r][c] = 1 # 벽으로 선택
-                select_wall(i,count+1) # 다음 벽 선택
-                graph_copy[r][c] = 0 # 되돌리기
-
-select_wall(0,0)
-print(safe_region)
+print(max_safe)
