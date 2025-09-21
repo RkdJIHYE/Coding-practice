@@ -17,7 +17,6 @@ fone = f[1]
 
 if not fone:
     print(0)
-    
 
 else:
     for i in fone:
