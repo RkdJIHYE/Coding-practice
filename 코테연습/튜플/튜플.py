@@ -1,21 +1,11 @@
 def solution(s):
-    answer = []
-    s=s.split(',')
-    
-    print(s)
-    for j in s:
-        print(j)
-        print()
-    
-    
-    for str in s:
-        tmp = ''
-        for j in str:
-            if j.isdigit():
-                tmp +=j
-                
-        if int(tmp) not in answer: 
-            answer.append(int(tmp))
-        
-    
-    return answer
+    li=[]
+    for i in s.split("},"):
+        li.append(i.replace("{","").replace("}","").split(","))
+    li.sort(key=len)
+    answer=[]
+    for i in li:
+        for j in i:
+            if j not in answer:
+                answer.append(j)
+    return list(map(int,answer))
