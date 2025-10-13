@@ -1,24 +1,27 @@
+#캐시 교체 알고리즘 -> LRU 가장 오래된 것 먼저 제거하기
+
 def solution(cacheSize, cities):
     answer = 0
     if cacheSize==0:
         answer = len(cities)*5
         return answer
-    
-    #대소문자 구분 안한다고 했으니까 전체를 소문자 변경 필요
-    newcities =[]
-    for k in cities:
-        newcities.append(k.lower())
 
-    cc = ['']*cacheSize
-    tmp=0
-    for i in newcities:
-        if i not in cc:
-            tmp=tmp%cacheSize
-            cc[tmp]=i
-            tmp+=1
-            answer+=5
-        else:
+    cc = []
+    for i in cities:
+        cn = i.lower()
+        
+        if cn in cc:
+            cc.remove(cn)
+            cc.append(cn)
             answer+=1
+        else:
+            if len(cc)<cacheSize:
+                cc.append(cn)
+            else:
+                cc.pop(0)
+                cc.append(cn)
+            answer+=5
+                
      
     return answer
 
