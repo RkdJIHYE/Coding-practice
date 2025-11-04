@@ -11,7 +11,9 @@ chk = [[False]*m for _ in range(n)]
 print(tomato)
 
 #최소 day를 체크하는 변수 tot
-tot = 0
+tot = -1
+cq = []
+
 
 def bfs(q):
     #위 아래 좌 우 위치 
@@ -25,8 +27,7 @@ def bfs(q):
             nx = x+dx[i]
             ny = y+dy[i]
             #새로 만든 nx ny가 배열의 범위를 벗어나진 않는지 체크
-            
-            if 0<=nx<m and 0<=ny<n and chk[nx][ny]==False and tomato[nx][ny]!=-1:
+            if 0<=nx<n and 0<=ny<m and chk[nx][ny]==False and tomato[nx][ny]!=-1:
                 chk[nx][ny]=True
                 tomato[nx][ny]=1
                 nh.append([nx,ny])
@@ -38,7 +39,18 @@ def bfs(q):
 for i in range(n):
     for j in range(m):
         if tomato[i][j] == 1:
-            print(i, j)
+            cq.append([i,j])
+            chk[i][j]=True
 
+while cq:
+    nq=bfs(cq)
+    cq=nq
+    tot+=1
 
-print(tomato[3][5])
+# 안 익은 토마토가 남아있는지 확인
+for i in range(n):
+    for j in range(m):
+        if tomato[i][j] == 0:
+            tot = -1
+
+print(tot)
